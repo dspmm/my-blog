@@ -1,0 +1,50 @@
+name: Build and Deploy Blog
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Build and Restart Docker Containers
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          MINIO_ROOT_USER: ${{ secrets.MINIO_ROOT_USER }}
+          MINIO_ROOT_PASSWORD: ${{ secrets.MINIO_ROOT_PASSWORD }}
+          MINIO_ACCESS_KEY: ${{ secrets.MINIO_ACCESS_KEY }}
+          MINIO_SECRET_KEY: ${{ secrets.MINIO_SECRET_KEY }}
+          MAIL_HOST: ${{ secrets.MAIL_HOST }}
+          MAIL_PORT: ${{ secrets.MAIL_PORT }}
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        run: |
+          set -e
+          for var in DB_USER DB_PASSWORD MINIO_ROOT_USER MINIO_ROOT_PASSWORD MINIO_ACCESS_KEY MINIO_SECRET_KEY JWT_SECRET; do
+            eval "val=\${$var:-}"
+            if [ -z "$val" ]; then
+              echo "❌ 缺少必要的 Gitea Actions Secret: $var，已中止部署（未停止现有线上服务）"
+              exit 1
+            fi
+          done
+
+          echo "🚀 [CI/CD] 检测到代码更新，开始执行自动部署..."
+          # 清理此前遗留的独立 blog-mysql 容器（若存在）
+          docker stop blog-mysql 2>/dev/null || true
+          docker rm blog-mysql 2>/dev/null || true
+          # 确保 MinIO 存储持久化卷就绪并赋予权限
+          mkdir -p /opt/minio/data 2>/dev/null || true
+          chmod -R 777 /opt/minio/data 2>/dev/null || true
+          docker compose down
+          docker compose up -d --build
+          echo "✅ [CI/CD] 容器重构完成，最新版本已上线！"

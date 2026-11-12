@@ -1,0 +1,55 @@
+services:
+  minio:
+    image: alpine/minio:latest-release
+    container_name: blog-minio
+    restart: always
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER is required}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required}
+      TZ: Asia/Shanghai
+    volumes:
+      - /opt/minio/data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+
+  backend:
+    build: ./backend
+    container_name: blog-backend
+    restart: always
+    depends_on:
+      - minio
+    environment:
+      DB_HOST: ${DB_HOST:-172.17.0.1}
+      DB_PORT: ${DB_PORT:-3306}
+      DB_NAME: ${DB_NAME:-my_blog}
+      DB_USER: ${DB_USER:?DB_USER is required}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      TZ: Asia/Shanghai
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-http://minio:9000}
+      MINIO_PUBLIC_URL: ${MINIO_PUBLIC_URL:-/my-blog}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:?MINIO_ACCESS_KEY is required}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:?MINIO_SECRET_KEY is required}
+      MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME:-my-blog}
+      MAIL_HOST: ${MAIL_HOST:-smtp.qq.com}
+      MAIL_PORT: ${MAIL_PORT:-465}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      APP_AUTH_LOG_VERIFICATION_CODE: ${APP_AUTH_LOG_VERIFICATION_CODE:-false}
+      INIT_ADMIN_PASSWORD: ${INIT_ADMIN_PASSWORD:-}
+      INIT_ADMIN_EMAIL: ${INIT_ADMIN_EMAIL:-}
+      INIT_DEMO_USER_PASSWORD: ${INIT_DEMO_USER_PASSWORD:-}
+    ports:
+      - "8089:8080"
+
+  frontend:
+    build: ./frontend
+    container_name: blog-frontend
+    restart: always
+    depends_on:
+      - backend
+      - minio
+    ports:
+      - "8088:80"

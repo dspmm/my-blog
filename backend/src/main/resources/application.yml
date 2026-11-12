@@ -1,0 +1,93 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: my-blog-backend
+  datasource:
+    url: jdbc:mysql://${DB_HOST:172.17.0.1}:${DB_PORT:3306}/${DB_NAME:my_blog}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 10
+      minimum-idle: 2
+  output:
+    ansi:
+      enabled: ALWAYS
+  servlet:
+    multipart:
+      max-file-size: 15MB
+      max-request-size: 20MB
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        dialect: org.hibernate.dialect.MySQLDialect
+    open-in-view: false
+  mail:
+    host: ${MAIL_HOST:smtp.qq.com}
+    port: ${MAIL_PORT:465}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+            protocols: TLSv1.2 TLSv1.3
+          starttls:
+            enable: false
+            required: false
+          timeout: 10000
+          connectiontimeout: 10000
+          writetimeout: 10000
+
+# MinIO 分布式对象存储服务配置
+minio:
+  endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+  public-url: ${MINIO_PUBLIC_URL:/my-blog}
+  access-key: ${MINIO_ACCESS_KEY}
+  secret-key: ${MINIO_SECRET_KEY}
+  bucket-name: ${MINIO_BUCKET_NAME:my-blog}
+
+# JWT 签名密钥与可选初始化账号口令（仅通过环境变量注入）
+jwt:
+  secret: ${JWT_SECRET:}
+
+app:
+  auth:
+    log-verification-code: ${APP_AUTH_LOG_VERIFICATION_CODE:false}
+  init:
+    admin-password: ${INIT_ADMIN_PASSWORD:}
+    admin-email: ${INIT_ADMIN_EMAIL:}
+    demo-user-password: ${INIT_DEMO_USER_PASSWORD:}
+
+# P6Spy 数据源装饰器与 SQL 打印参数
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: true
+      multiline: false
+      logging: custom
+      custom-format: com.example.blog.config.P6spySqlFormat
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+logging:
+  level:
+    root: INFO
+    com.example.blog: INFO
+    p6spy: INFO
+  pattern:
+    console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%-5level) %clr([%15.15thread]){magenta} %clr(%-40.40logger{39}){cyan} : %msg%n"

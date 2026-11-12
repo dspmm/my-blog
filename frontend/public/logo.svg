@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- 底座：深邃黑曜石与高透极光天蓝外边框 (完全对齐 favicon.png) -->
+  <rect x="16" y="16" width="480" height="480" rx="120" 
+        fill="#0F172A" stroke="#38BDF8" stroke-opacity="0.85" stroke-width="12" />
+
+  <!-- 字母 X 的左半部：极客终端提示符 '>' (#38BDF8 天蓝) -->
+  <path d="M 115 170 L 205 256 L 115 342" 
+        fill="none" stroke="#38BDF8" stroke-width="38" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- 字母 X 的右半部：代码反斜杠 '/' (#6366F1 极光靛蓝) -->
+  <path d="M 225 170 L 165 256 L 225 342" 
+        fill="none" stroke="#6366F1" stroke-width="38" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- 字母 D 的垂直主干轴线 (#6366F1 极光靛蓝) -->
+  <path d="M 285 170 L 285 342" 
+        fill="none" stroke="#6366F1" stroke-width="38" stroke-linecap="round" />
+
+  <!-- 字母 D 的现代几何圆弧舱体 (#6366F1 极光靛蓝) -->
+  <path d="M 285 170 C 375 170, 415 205, 415 256 C 415 307, 375 342, 285 342" 
+        fill="none" stroke="#6366F1" stroke-width="38" stroke-linecap="round" />
+
+  <!-- 终端跳动命令行光标 '_' (#38BDF8 天蓝) -->
+  <line x1="320" y1="288" x2="368" y2="288" 
+        stroke="#38BDF8" stroke-width="16" stroke-linecap="round" />
+
+  <!-- 右下角常驻高可用在线指示点 (#10B981 翡翠绿) -->
+  <circle cx="410" cy="410" r="24" fill="#10B981" />
+</svg>
